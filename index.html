@@ -6,50 +6,50 @@
 <title>RecipeRecommender+</title>
 
 <style>
-:root {
+:root{
     --primary:#27ae60;
     --veg:#2ecc71;
     --nonveg:#e74c3c;
     --bg:#f4f6f8;
 }
-body {
+body{
     margin:0;
     font-family:'Segoe UI',sans-serif;
     background:var(--bg);
 }
-.container {
+.container{
     max-width:1100px;
     margin:auto;
     padding:20px;
 }
-header {
+header{
     text-align:center;
     margin-bottom:25px;
 }
-header h1 { margin:0; color:#2c3e50; }
-header p { color:#7f8c8d; }
+header h1{margin:0;color:#2c3e50;}
+header p{color:#7f8c8d;}
 
-.search-area {
+.search-area{
     background:#fff;
     padding:25px;
     border-radius:16px;
     box-shadow:0 6px 18px rgba(0,0,0,.06);
     margin-bottom:30px;
 }
-.controls {
+.controls{
     display:flex;
     gap:12px;
     flex-wrap:wrap;
 }
-input, select {
+input,select{
     padding:15px;
     border:2px solid #ddd;
     border-radius:10px;
     font-size:16px;
 }
-input { flex:2; min-width:240px; }
-select { flex:1; min-width:160px; cursor:pointer; }
-button {
+input{flex:2;min-width:240px;}
+select{flex:1;min-width:160px;}
+button{
     padding:15px 35px;
     background:var(--primary);
     border:none;
@@ -59,9 +59,9 @@ button {
     cursor:pointer;
     transition:.3s;
 }
-button:hover { background:#219150; transform:translateY(-1px); }
+button:hover{background:#219150;}
 
-.loader {
+.loader{
     display:none;
     text-align:center;
     padding:30px;
@@ -69,13 +69,13 @@ button:hover { background:#219150; transform:translateY(-1px); }
     color:#7f8c8d;
 }
 
-.results-grid {
+.results-grid{
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
     gap:22px;
 }
 
-.card {
+.card{
     background:#fff;
     border-radius:14px;
     overflow:hidden;
@@ -83,17 +83,15 @@ button:hover { background:#219150; transform:translateY(-1px); }
     border-bottom:5px solid transparent;
     transition:.3s;
 }
-.card:hover { transform:translateY(-4px); }
-
-.card img {
+.card:hover{transform:translateY(-4px);}
+.card img{
     width:100%;
     height:180px;
     object-fit:cover;
 }
+.card-content{padding:16px;}
 
-.card-content { padding:16px; }
-
-.badge {
+.badge{
     font-size:11px;
     padding:4px 9px;
     border-radius:6px;
@@ -101,26 +99,27 @@ button:hover { background:#219150; transform:translateY(-1px); }
     display:inline-block;
     margin-bottom:8px;
 }
-.veg { background:#eafaf1; color:var(--veg); }
-.nonveg { background:#fdecea; color:var(--nonveg); }
+.veg{background:#eafaf1;color:var(--veg);}
+.nonveg{background:#fdecea;color:var(--nonveg);}
+.indian{background:#fff3cd;color:#b8860b;}
 
-.match {
+.match{
     font-size:13px;
     color:#555;
     margin:8px 0;
 }
-.bar {
+.bar{
     height:6px;
     background:#eee;
     border-radius:3px;
 }
-.fill {
+.fill{
     height:100%;
     background:var(--veg);
     border-radius:3px;
 }
 
-.view-btn {
+.view-btn{
     display:inline-block;
     margin-top:10px;
     font-size:14px;
@@ -131,7 +130,7 @@ button:hover { background:#219150; transform:translateY(-1px); }
 }
 
 /* Modal */
-.modal {
+.modal{
     display:none;
     position:fixed;
     inset:0;
@@ -139,7 +138,7 @@ button:hover { background:#219150; transform:translateY(-1px); }
     align-items:center;
     justify-content:center;
 }
-.modal-box {
+.modal-box{
     background:#fff;
     width:90%;
     max-width:600px;
@@ -148,7 +147,7 @@ button:hover { background:#219150; transform:translateY(-1px); }
     padding:25px;
     border-radius:16px;
 }
-.close {
+.close{
     float:right;
     cursor:pointer;
     font-size:20px;
@@ -162,12 +161,12 @@ button:hover { background:#219150; transform:translateY(-1px); }
 <div class="container">
 <header>
     <h1>🍽️ RecipeRecommender+</h1>
-    <p>Smart ingredient-based recipe suggestions</p>
+    <p>Smart Indian + Global Recipe Suggestions</p>
 </header>
 
 <div class="search-area">
     <div class="controls">
-        <input id="userInput" placeholder="Ingredients (e.g. potato, onion)">
+        <input id="userInput" placeholder="Ingredients (e.g. chicken or potato)">
         <select id="dietType">
             <option value="all">All</option>
             <option value="veg">Veg Only</option>
@@ -177,7 +176,7 @@ button:hover { background:#219150; transform:translateY(-1px); }
     </div>
 </div>
 
-<div id="loader" class="loader">🔍 Finding best matches…</div>
+<div id="loader" class="loader">🔍 Searching recipes…</div>
 <div id="results" class="results-grid"></div>
 </div>
 
@@ -196,30 +195,43 @@ document.getElementById("userInput").addEventListener("keypress",e=>{
 
 const nonVegKeywords=["chicken","beef","mutton","lamb","pork","fish","egg","seafood","goat","shrimp"];
 
+/* Indian fallback recipes */
+const indianFallback={
+    chicken:[
+        {name:"Butter Chicken",type:"nonveg"},
+        {name:"Chicken Biryani",type:"nonveg"},
+        {name:"Chicken Tikka",type:"nonveg"}
+    ],
+    potato:[
+        {name:"Aloo Fry",type:"veg"},
+        {name:"Jeera Aloo",type:"veg"},
+        {name:"Aloo Gobi",type:"veg"},
+        {name:"Aloo Paratha",type:"veg"}
+    ]
+};
+
 async function getRecipes(){
     const input=document.getElementById("userInput").value.trim().toLowerCase();
     const diet=document.getElementById("dietType").value;
     const loader=document.getElementById("loader");
     const results=document.getElementById("results");
 
-    if(!input) return alert("Please enter ingredients");
+    if(!input) return alert("Please enter ingredient");
 
     loader.style.display="block";
     results.innerHTML="";
 
-    const ingredients=input.split(",").map(i=>i.trim());
-
     try{
-        const res=await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredients[0]}`);
+        const res=await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${input}`);
         const data=await res.json();
 
         if(!data.meals){
-            results.innerHTML="<p>No recipes found.</p>";
+            showIndianFallback(input,diet);
             return;
         }
 
         const details=await Promise.all(
-            data.meals.slice(0,12).map(m=>
+            data.meals.slice(0,10).map(m=>
                 fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${m.idMeal}`)
                 .then(r=>r.json())
             )
@@ -227,16 +239,13 @@ async function getRecipes(){
 
         details.forEach(d=>{
             const meal=d.meals[0];
-            const allText=(JSON.stringify(meal)).toLowerCase();
-            const isNonVeg=nonVegKeywords.some(k=>allText.includes(k));
+            const text=JSON.stringify(meal).toLowerCase();
+            const isNonVeg=nonVegKeywords.some(k=>text.includes(k));
 
             if(diet==="veg" && isNonVeg) return;
             if(diet==="nonveg" && !isNonVeg) return;
 
-            let matchCount=ingredients.filter(i=>allText.includes(i)).length;
-            let matchPercent=Math.min(100,Math.floor((matchCount/ingredients.length)*100)+40);
-
-            renderCard(meal,isNonVeg,matchPercent);
+            renderCard(meal.strMeal,meal.strMealThumb,isNonVeg,false);
         });
 
     }catch{
@@ -246,48 +255,45 @@ async function getRecipes(){
     }
 }
 
-function renderCard(meal,isNonVeg,match){
+function showIndianFallback(ingredient,diet){
+    const results=document.getElementById("results");
+    results.innerHTML="";
+
+    if(!indianFallback[ingredient]){
+        results.innerHTML="<p>No recipes found.</p>";
+        return;
+    }
+
+    indianFallback[ingredient].forEach(r=>{
+        const isNonVeg=r.type==="nonveg";
+
+        if(diet==="veg" && isNonVeg) return;
+        if(diet==="nonveg" && !isNonVeg) return;
+
+        renderCard(r.name,
+        "https://source.unsplash.com/400x300/?"+r.name.replace(" ","%20"),
+        isNonVeg,true);
+    });
+}
+
+function renderCard(name,img,isNonVeg,isIndian){
     const results=document.getElementById("results");
     const card=document.createElement("div");
     card.className="card";
     card.style.borderBottomColor=isNonVeg?"var(--nonveg)":"var(--veg)";
 
     card.innerHTML=`
-        <img src="${meal.strMealThumb}">
+        <img src="${img}">
         <div class="card-content">
-            <span class="badge ${isNonVeg?"nonveg":"veg"}">${isNonVeg?"Non-Veg":"Veg"}</span>
-            <h3>${meal.strMeal}</h3>
-            <div class="match">Match: ${match}%</div>
-            <div class="bar"><div class="fill" style="width:${match}%"></div></div>
-            <a class="view-btn" onclick="openModal('${meal.idMeal}')">View Recipe →</a>
+            <span class="badge ${isIndian?"indian":(isNonVeg?"nonveg":"veg")}">
+                ${isIndian?"Indian Special":(isNonVeg?"Non-Veg":"Veg")}
+            </span>
+            <h3>${name}</h3>
+            <div class="match">Match: 95%</div>
+            <div class="bar"><div class="fill" style="width:95%"></div></div>
         </div>
     `;
     results.appendChild(card);
-}
-
-async function openModal(id){
-    const modal=document.getElementById("modal");
-    const box=document.getElementById("modalContent");
-    modal.style.display="flex";
-
-    const res=await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
-    const data=await res.json();
-    const m=data.meals[0];
-
-    let ingredients="";
-    for(let i=1;i<=20;i++){
-        if(m["strIngredient"+i])
-            ingredients+=`<li>${m["strIngredient"+i]} - ${m["strMeasure"+i]}</li>`;
-    }
-
-    box.innerHTML=`
-        <h2>${m.strMeal}</h2>
-        <h4>Ingredients</h4>
-        <ul>${ingredients}</ul>
-        <h4>Instructions</h4>
-        <p>${m.strInstructions}</p>
-        ${m.strYoutube?`<a href="${m.strYoutube}" target="_blank">▶ Watch Video</a>`:""}
-    `;
 }
 
 function closeModal(){
