@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RecipeRecommender - Personalized Filter</title>
+  <style>
+    :root { --primary: #27ae60; --veg: #2ecc71; --nonveg: #e74c3c; --bg: #f8f9fa; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+    .container { max-width: 1000px; margin: auto; }
+    header { text-align: center; padding: 20px; }
+    h1 { margin: 0; color: #2c3e50; }
+    .search-area { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; }
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; }
+    input { flex: 2; padding: 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; min-width: 200px; }
+    select { flex: 1; padding: 15px; border: 2px solid #ddd; border-radius: 8px; font-weight: bold; background: white; cursor: pointer; }
+    button { padding: 15px 30px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+    button:hover { background: #219150; }
+    .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-bottom: 4px solid transparent; }
+    .card img { width: 100%; height: 180px; object-fit: cover; }
+    .card-content { padding: 15px; }
+    .type-badge { font-size: 11px; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; font-weight: bold; display: inline-block; margin-bottom: 10px; }
+    .veg-badge { background: #e8f5e9; color: var(--veg); }
+    .nonveg-badge { background: #ffebee; color: var(--nonveg); }
+    .match-score { font-size: 13px; color: #666; margin: 10px 0; }
+    .match-bar { height: 6px; background: #eee; border-radius: 3px; overflow: hidden; }
+    .match-fill { height: 100%; background: var(--veg); }
+    .loader { text-align: center; display: none; padding: 40px; font-weight: bold; color: #7f8c8d; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🥗 RecipeRecommender</h1>
+    <p>Indian + Global recipes with fuzzy search</p>
+  </header>
+
+  <div class="search-area">
+    <div class="controls">
+      <input type="text" id="userInput" placeholder="Ingredients (e.g. Potato, Chicken, Onion)">
+      <select id="dietType">
+        <option value="all">All Types</option>
+        <option value="veg">Veg Only</option>
+        <option value="nonveg">Non-Veg Only</option>
+      </select>
+      <button onclick="getLiveRecipes()">Find Recipes</button>
+    </div>
+  </div>
+
+  <div id="loader" class="loader">🔍 Analyzing ingredients...</div>
+  <div id="results" class="results-grid"></div>
+</div>
+
+<script>
+  // Local Indian Veg Recipes Dataset
+  const indianVegRecipes = [
+    {
+      strMeal: "Idly",
+      strCategory: "Vegetarian",
+      strMealThumb: "https://upload.wikimedia.org/wikipedia/commons/6/6f/Idli_Sambar.JPG",
+      strInstructions: "1. Soak rice and urad dal overnight.\n2. Grind to smooth batter.\n3. Ferment 8 hours.\n4. Steam in idly plates.\n5. Serve hot with chutney and sambar."
+    },
+    {
+      strMeal: "Dosa",
+      strCategory: "Vegetarian",
+      strMealThumb: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Dosa_and_sambar.JPG",
+      strInstructions: "1. Prepare fermented batter.\n2. Heat tawa and spread thin.\n3. Drizzle oil.\n4. Cook until crisp.\n5. Serve with chutney and sambar."
+    },
+    {
+      strMeal: "Poori",
+      strCategory: "Vegetarian",
+      strMealThumb: "https://upload.wikimedia.org/wikipedia/commons/9/9d/Poori_Bhaji.jpg",
+      strInstructions: "1. Knead wheat flour dough.\n2. Roll into small discs.\n3. Deep fry until puffed.\n4. Serve with potato masala."
+    },
+    {
+      strMeal: "Kuruma",
+      strCategory: "Vegetarian",
+      strMealThumb: "https://upload.wikimedia.org/wikipedia/commons/4/4a/Veg_kurma.jpg",
+      strInstructions: "1. Fry onion, tomato, ginger garlic.\n2. Add mixed vegetables.\n3. Add masala paste.\n4. Cook until thick.\n5. Serve with chapati or rice."
+    },
+    {
+      strMeal: "Thakkali Thokku",
+      strCategory: "Vegetarian",
+      strMealThumb: "https://upload.wikimedia.org/wikipedia/commons/2/2b/Tomato_thokku.jpg",
+      strInstructions: "1. Heat oil, add mustard.\n2. Fry onion, add tomato puree.\n3. Add chili powder, salt.\n4. Cook until thick.\n5. Serve with dosa or rice."
+    }
+  ];
+
+  // Fuzzy matching helper
+  function fuzzyMatch(input, target) {
+    input = input.toLowerCase();
+    target = target.toLowerCase();
+    return target.includes(input) || input.includes(target) || levenshtein(input, target) <= 2;
+  }
+
+  // Simple Levenshtein distance for typo tolerance
+  function levenshtein(a, b) {
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+    for (let i = 1; i <= b.length; i++) {
+      for (let j = 1; j <= a.length; j++) {
+        if (b.charAt(i-1) === a.charAt(j-1)) {
+          matrix[i][j] = matrix[i-1][j-1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i-1][j-1] + 1,
+            matrix[i][j-1] + 1,
+            matrix[i-1][j] + 1
+          );
+        }
+      }
+    }
+    return matrix[b.length][a.length];
+  }
+
+  async function getLiveRecipes() {
+    const input = document.getElementById('userInput').value.trim();
+    const dietType = document.getElementById('dietType').value;
+    const resultsContainer = document.getElementById('results');
+    const loader = document.getElementById('loader');
+    
+    if (!input) return alert("Enter ingredients first!");
+
+    resultsContainer.innerHTML = '';
+    loader.style.display = 'block';
+
+    try {
+      const ingredients = input.split(",").map(i => i.trim().toLowerCase());
+      let matchedMeals = [];
+
+      // Step 1: Match Indian Veg Recipes locally
+      indianVegRecipes.forEach(meal => {
+        if (dietType === "nonveg") return; // skip veg if non-veg only
+        if (ingredients.some(ing => fuzzyMatch(ing, meal.strMeal) || fuzzyMatch(ing, "vegetarian"))) {
+          matchedMeals.push(meal);
+        }
+      });
+
+      // Step 2: Fetch from API with fuzzy matching
+      for (let ing of ingredients) {
+        const response = await fetch(`https://www.themealdb.com/api/json/v
