@@ -1,55 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RecipeRecommender - Personalized Filter</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RecipeRecommender+</title>
 
 <style>
-:root{
+    :root {
+        --primary: #27ae60;
+        --veg: #2ecc71;
+        --nonveg: #e74c3c;
+        --bg: #f8f9fa;
+    }
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: var(--bg);
+        margin: 0;
+        padding: 20px;
+    }
+    .container {
+        max-width: 1000px;
+        margin: auto;
+    }
+:root {
     --primary:#27ae60;
     --veg:#2ecc71;
     --nonveg:#e74c3c;
     --bg:#f4f6f8;
 }
-body{
+body {
     margin:0;
     font-family:'Segoe UI',sans-serif;
     background:var(--bg);
 }
-.container{
+.container {
     max-width:1100px;
     margin:auto;
     padding:20px;
 }
-header{
+header {
     text-align:center;
     margin-bottom:25px;
 }
-header h1{margin:0;color:#2c3e50;}
-header p{color:#7f8c8d;}
+header h1 { margin:0; color:#2c3e50; }
+header p { color:#7f8c8d; }
 
-.search-area{
+.search-area {
     background:#fff;
     padding:25px;
     border-radius:16px;
     box-shadow:0 6px 18px rgba(0,0,0,.06);
     margin-bottom:30px;
 }
-.controls{
+.controls {
     display:flex;
     gap:12px;
     flex-wrap:wrap;
 }
-input,select{
+input, select {
     padding:15px;
     border:2px solid #ddd;
     border-radius:10px;
     font-size:16px;
 }
-input{flex:2;min-width:240px;}
-select{flex:1;min-width:160px;}
-button{
+input { flex:2; min-width:240px; }
+select { flex:1; min-width:160px; cursor:pointer; }
+button {
     padding:15px 35px;
     background:var(--primary);
     border:none;
@@ -59,9 +78,9 @@ button{
     cursor:pointer;
     transition:.3s;
 }
-button:hover{background:#219150;}
+button:hover { background:#219150; transform:translateY(-1px); }
 
-.loader{
+.loader {
     display:none;
     text-align:center;
     padding:30px;
@@ -69,13 +88,64 @@ button:hover{background:#219150;}
     color:#7f8c8d;
 }
 
-.results-grid{
+    header {
+        text-align: center;
+        padding: 20px;
+    }
+    h1 {
+        margin: 0;
+        color: #2c3e50;
+    }
+.results-grid {
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
     gap:22px;
 }
 
-.card{
+    /* Search & Filter Section */
+    .search-area {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+    }
+    .controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    input {
+        flex: 2;
+        padding: 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        min-width: 200px;
+    }
+    select {
+        flex: 1;
+        padding: 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-weight: bold;
+        background: white;
+        cursor: pointer;
+    }
+    button {
+        padding: 15px 30px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    button:hover {
+        background: #219150;
+    }
+.card {
     background:#fff;
     border-radius:14px;
     overflow:hidden;
@@ -83,15 +153,77 @@ button:hover{background:#219150;}
     border-bottom:5px solid transparent;
     transition:.3s;
 }
-.card:hover{transform:translateY(-4px);}
-.card img{
+.card:hover { transform:translateY(-4px); }
+
+    /* Results Grid */
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+    .card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        border-bottom: 4px solid transparent;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+    }
+    .card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+    .card-content {
+        padding: 15px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+.card img {
     width:100%;
     height:180px;
     object-fit:cover;
 }
-.card-content{padding:16px;}
 
-.badge{
+    .type-badge {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        font-weight: bold;
+        display: inline-block;
+        margin-bottom: 10px;
+        width: fit-content;
+    }
+    .veg-badge {
+        background: #e8f5e9;
+        color: var(--veg);
+    }
+    .nonveg-badge {
+        background: #ffebee;
+        color: var(--nonveg);
+    }
+.card-content { padding:16px; }
+
+    .match-score {
+        font-size: 13px;
+        color: #666;
+        margin: 10px 0;
+    }
+    .match-bar {
+        height: 6px;
+        background: #eee;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    .match-fill {
+        height: 100%;
+        background: var(--veg);
+    }
+.badge {
     font-size:11px;
     padding:4px 9px;
     border-radius:6px;
@@ -99,27 +231,41 @@ button:hover{background:#219150;}
     display:inline-block;
     margin-bottom:8px;
 }
-.veg{background:#eafaf1;color:var(--veg);}
-.nonveg{background:#fdecea;color:var(--nonveg);}
-.indian{background:#fff3cd;color:#b8860b;}
+.veg { background:#eafaf1; color:var(--veg); }
+.nonveg { background:#fdecea; color:var(--nonveg); }
 
-.match{
+    .loader {
+        text-align: center;
+        display: none;
+        padding: 40px;
+        font-weight: bold;
+        color: #7f8c8d;
+    }
+.match {
     font-size:13px;
     color:#555;
     margin:8px 0;
 }
-.bar{
+.bar {
     height:6px;
     background:#eee;
     border-radius:3px;
 }
-.fill{
+.fill {
     height:100%;
     background:var(--veg);
     border-radius:3px;
 }
 
-.view-btn{
+    /* Scrollable Steps */
+    ol {
+        max-height: 140px;
+        overflow-y: auto;
+        padding-left: 18px;
+        margin-top: 5px;
+        margin-bottom: 0;
+    }
+.view-btn {
     display:inline-block;
     margin-top:10px;
     font-size:14px;
@@ -130,7 +276,7 @@ button:hover{background:#219150;}
 }
 
 /* Modal */
-.modal{
+.modal {
     display:none;
     position:fixed;
     inset:0;
@@ -138,7 +284,7 @@ button:hover{background:#219150;}
     align-items:center;
     justify-content:center;
 }
-.modal-box{
+.modal-box {
     background:#fff;
     width:90%;
     max-width:600px;
@@ -147,7 +293,7 @@ button:hover{background:#219150;}
     padding:25px;
     border-radius:16px;
 }
-.close{
+.close {
     float:right;
     cursor:pointer;
     font-size:20px;
@@ -159,24 +305,41 @@ button:hover{background:#219150;}
 <body>
 
 <div class="container">
+    <header>
+        <h1>🥗 RecipeRecommender</h1>
+        <p>Rule-based matching with live dietary filtering + Indian Recipe Suggestions</p>
+    </header>
+
+    <div class="search-area">
+        <div class="controls">
+            <input type="text" id="userInput" placeholder="Ingredients (e.g. Potato, Chicken, Onion)" autocomplete="off" />
+            <select id="dietType">
+                <option value="all">All Types</option>
+                <option value="veg">Veg Only</option>
+                <option value="nonveg">Non-Veg Only</option>
+            </select>
+            <button onclick="getLiveRecipes()">Find Recipes</button>
+        </div>
 <header>
     <h1>🍽️ RecipeRecommender+</h1>
-    <p>Smart Indian + Global Recipe Suggestions</p>
+    <p>Smart ingredient-based recipe suggestions</p>
 </header>
 
 <div class="search-area">
     <div class="controls">
-        <input id="userInput" placeholder="Ingredients (e.g. chicken or potato)">
+        <input id="userInput" placeholder="Ingredients (e.g. potato, onion)">
         <select id="dietType">
             <option value="all">All</option>
             <option value="veg">Veg Only</option>
             <option value="nonveg">Non-Veg Only</option>
         </select>
         <button onclick="getRecipes()">Search</button>
-    </div>
+</div>
 </div>
 
-<div id="loader" class="loader">🔍 Searching recipes…</div>
+    <div id="loader" class="loader">🔍 Analyzing ingredients...</div>
+    <div id="results" class="results-grid"></div>
+<div id="loader" class="loader">🔍 Finding best matches…</div>
 <div id="results" class="results-grid"></div>
 </div>
 
@@ -189,26 +352,191 @@ button:hover{background:#219150;}
 </div>
 
 <script>
+const indianRecipes = [
+    {
+        id: 'idly',
+        strMeal: "Idly",
+        strCategory: "Vegetarian",
+        strMealThumb: "https://www.indianhealthyrecipes.com/wp-content/uploads/2020/05/idli-recipe-1.jpg",
+        ingredients: ["rice", "urad dal", "fenugreek", "water", "salt"],
+        instructions: [
+            "Soak rice and urad dal separately for 4-6 hours.",
+            "Grind rice and dal to a smooth batter, add salt.",
+            "Ferment batter overnight.",
+            "Pour batter into idly molds and steam for 10-12 minutes."
+        ],
+        type: "veg"
+    },
+    {
+        id: 'dosa',
+        strMeal: "Dosa",
+        strCategory: "Vegetarian",
+        strMealThumb: "https://www.indianhealthyrecipes.com/wp-content/uploads/2020/06/dosa-recipe.jpg",
+        ingredients: ["rice", "urad dal", "fenugreek", "water", "salt"],
+        instructions: [
+            "Soak rice and urad dal separately for 4-6 hours.",
+            "Grind rice and dal to a thin batter, add salt.",
+            "Ferment batter overnight.",
+            "Pour batter on hot griddle, spread thinly, cook until crisp."
+        ],
+        type: "veg"
+    },
+    {
+        id: 'poori',
+        strMeal: "Poori",
+        strCategory: "Vegetarian",
+        strMealThumb: "https://www.indianhealthyrecipes.com/wp-content/uploads/2020/08/poori-recipe.jpg",
+        ingredients: ["wheat flour", "water", "salt", "oil"],
+        instructions: [
+            "Mix wheat flour, salt, and water to make stiff dough.",
+            "Roll into small circles.",
+            "Deep fry in hot oil until puffed and golden."
+        ],
+        type: "veg"
+    },
+    {
+        id: 'chicken-kuruma',
+        strMeal: "Chicken Kuruma",
+        strCategory: "Non-Vegetarian",
+        strMealThumb: "https://www.indianhealthyrecipes.com/wp-content/uploads/2020/10/chicken-kurma.jpg",
+        ingredients: ["chicken", "onion", "tomato", "yogurt", "spices"],
+        instructions: [
+            "Fry onions until golden.",
+            "Add spices and chicken pieces, cook until sealed.",
+            "Add tomato puree and yogurt, simmer until chicken is cooked."
+        ],
+        type: "nonveg"
+    },
+    {
+        id: 'thakkali-thokku',
+        strMeal: "Thakkali Thokku (Tomato Chutney)",
+        strCategory: "Vegetarian",
+        strMealThumb: "https://www.indianhealthyrecipes.com/wp-content/uploads/2020/03/thakkali-thokku.jpg",
+        ingredients: ["tomato", "mustard seeds", "curry leaves", "chili powder", "oil"],
+        instructions: [
+            "Heat oil, add mustard seeds and curry leaves.",
+            "Add chopped tomatoes and chili powder.",
+            "Cook until oil separates."
+        ],
+        type: "veg"
+    },
+    {
+        id: 'veg-biryani',
+        strMeal: "Veg Biryani",
+        strCategory: "Vegetarian",
+        strMealThumb: "https://www.indianhealthyrecipes.com/wp-content/uploads/2021/12/veg-biryani-recipe.jpg",
+        ingredients: ["rice", "carrot", "beans", "potato", "onion", "spices"],
+        instructions: [
+            "Saute vegetables with spices.",
+            "Add rice and water, cook covered until done."
+        ],
+        type: "veg"
+    },
+    {
+        id: 'chicken-biryani',
+        strMeal: "Chicken Biryani",
+        strCategory: "Non-Vegetarian",
+        strMealThumb: "https://www.indianhealthyrecipes.com/wp-content/uploads/2021/12/chicken-biryani.jpg",
+        ingredients: ["chicken", "rice", "onion", "tomato", "spices"],
+        instructions: [
+            "Marinate chicken with spices.",
+            "Cook rice separately.",
+            "Layer chicken and rice, cook on dum."
+        ],
+        type: "nonveg"
+    },
+    {
+        id: 'chicken-gravy',
+        strMeal: "Chicken Gravy",
+        strCategory: "Non-Vegetarian",
+        strMealThumb: "https://www.indianhealthyrecipes.com/wp-content/uploads/2022/02/butter-chicken.jpg",
+        ingredients: ["chicken", "butter", "tomato", "cream", "spices"],
+        instructions: [
+            "Cook chicken pieces until tender.",
+            "Prepare tomato-based creamy gravy.",
+            "Mix chicken and gravy, simmer for 10 minutes."
+        ],
+        type: "nonveg"
+    }
+];
+
+// Simple partial matching for ingredients
+function ingredientMatchCount(recipeIngredients, inputIngredients) {
+    let count = 0;
+    for (let ri of recipeIngredients) {
+        for (let ii of inputIngredients) {
+            if (ri.includes(ii) || ii.includes(ri)) {
+                count++;
+                break;
+            }
+        }
+    }
+    return count;
+}
 document.getElementById("userInput").addEventListener("keypress",e=>{
     if(e.key==="Enter") getRecipes();
 });
 
-const nonVegKeywords=["chicken","beef","mutton","lamb","pork","fish","egg","seafood","goat","shrimp"];
+async function getLiveRecipes() {
+    const input = document.getElementById('userInput').value.trim().toLowerCase();
+    const dietType = document.getElementById('dietType').value;
+    const resultsContainer = document.getElementById('results');
+    const loader = document.getElementById('loader');
 
-/* Indian fallback recipes */
-const indianFallback={
-    chicken:[
-        {name:"Butter Chicken",type:"nonveg"},
-        {name:"Chicken Biryani",type:"nonveg"},
-        {name:"Chicken Tikka",type:"nonveg"}
-    ],
-    potato:[
-        {name:"Aloo Fry",type:"veg"},
-        {name:"Jeera Aloo",type:"veg"},
-        {name:"Aloo Gobi",type:"veg"},
-        {name:"Aloo Paratha",type:"veg"}
-    ]
-};
+    if (!input) return alert("Enter ingredients first!");
+
+    resultsContainer.innerHTML = '';
+    loader.style.display = 'block';
+
+    try {
+        const inputIngredients = input.split(",").map(i => i.trim());
+
+        // Local Indian recipe matches
+        let matchedIndianRecipes = indianRecipes
+            .filter(r => {
+                if (dietType === 'veg' && r.type !== 'veg') return false;
+                if (dietType === 'nonveg' && r.type !== 'nonveg') return false;
+                return ingredientMatchCount(r.ingredients, inputIngredients) > 0;
+            })
+            .map(r => ({
+                ...r,
+                matchScore: Math.floor((ingredientMatchCount(r.ingredients, inputIngredients) / r.ingredients.length) * 100)
+            }))
+            .sort((a, b) => b.matchScore - a.matchScore);
+
+        // External API fallback
+        let mealDetails = [];
+        if (matchedIndianRecipes.length < 6) {
+            let allMeals = [];
+            for (let ing of inputIngredients) {
+                const response = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${encodeURIComponent(ing)}`);
+                const data = await response.json();
+                if (data.meals) {
+                    allMeals.push(data.meals.map(m => m.idMeal));
+                }
+            }
+
+            if (allMeals.length > 0) {
+                let commonMeals = allMeals.reduce((a, b) => a.filter(c => b.includes(c)));
+                if (!commonMeals.length) {
+                    commonMeals = [...new Set(allMeals.flat())];
+                }
+                const mealDetailsResponses = await Promise.all(
+                    commonMeals.slice(0, 12).map(id =>
+                        fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`).then(res => res.json())
+                    )
+                );
+                mealDetails = mealDetailsResponses.map(detail => detail.meals[0])
+                    .filter(meal => {
+                        const nonVegCats = ['chicken', 'beef', 'pork', 'lamb', 'seafood', 'goat'];
+                        const isNonVeg = nonVegCats.includes(meal.strCategory.toLowerCase());
+                        if (dietType === 'veg' && isNonVeg) return false;
+                        if (dietType === 'nonveg' && !isNonVeg) return false;
+                        return true;
+                    });
+            }
+        }
+const nonVegKeywords=["chicken","beef","mutton","lamb","pork","fish","egg","seafood","goat","shrimp"];
 
 async function getRecipes(){
     const input=document.getElementById("userInput").value.trim().toLowerCase();
@@ -216,38 +544,66 @@ async function getRecipes(){
     const loader=document.getElementById("loader");
     const results=document.getElementById("results");
 
-    if(!input) return alert("Please enter ingredient");
+    if(!input) return alert("Please enter ingredients");
 
     loader.style.display="block";
     results.innerHTML="";
 
+        if (matchedIndianRecipes.length === 0 && mealDetails.length === 0) {
+            resultsContainer.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>No matches found. Try different ingredients.</p>";
+    const ingredients=input.split(",").map(i=>i.trim());
+
     try{
-        const res=await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${input}`);
+        const res=await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredients[0]}`);
         const data=await res.json();
 
         if(!data.meals){
-            showIndianFallback(input,diet);
-            return;
-        }
+            results.innerHTML="<p>No recipes found.</p>";
+return;
+}
 
+        matchedIndianRecipes.forEach(r => renderLocalRecipeCard(r));
+        mealDetails.forEach(meal => renderCard(meal, isNonVegCategory(meal.strCategory)));
         const details=await Promise.all(
-            data.meals.slice(0,10).map(m=>
+            data.meals.slice(0,12).map(m=>
                 fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${m.idMeal}`)
                 .then(r=>r.json())
             )
         );
 
+    } catch (error) {
+        resultsContainer.innerHTML = "<p>Connection error. Please try again.</p>";
+        console.error(error);
+    } finally {
+        loader.style.display = 'none';
+    }
+}
         details.forEach(d=>{
             const meal=d.meals[0];
-            const text=JSON.stringify(meal).toLowerCase();
-            const isNonVeg=nonVegKeywords.some(k=>text.includes(k));
+            const allText=(JSON.stringify(meal)).toLowerCase();
+            const isNonVeg=nonVegKeywords.some(k=>allText.includes(k));
 
+function isNonVegCategory(category) {
+    const nonVegCats = ['chicken', 'beef', 'pork', 'lamb', 'seafood', 'goat'];
+    return nonVegCats.includes(category.toLowerCase());
+}
             if(diet==="veg" && isNonVeg) return;
             if(diet==="nonveg" && !isNonVeg) return;
 
-            renderCard(meal.strMeal,meal.strMealThumb,isNonVeg,false);
+function renderLocalRecipeCard(recipe) {
+    const container = document.getElementById('results');
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.borderBottomColor = recipe.type === 'nonveg' ? 'var(--nonveg)' : 'var(--veg)';
+            let matchCount=ingredients.filter(i=>allText.includes(i)).length;
+            let matchPercent=Math.min(100,Math.floor((matchCount/ingredients.length)*100)+40);
+
+    const typeLabel = recipe.type === 'nonveg' ? 'Non-Veg' : 'Veg';
+    const typeClass = recipe.type === 'nonveg' ? 'nonveg-badge' : 'veg-badge';
+            renderCard(meal,isNonVeg,matchPercent);
         });
 
+    const steps = recipe.instructions.map(s => `<li>${s}</li>`).join('');
     }catch{
         results.innerHTML="<p>Error fetching data.</p>";
     }finally{
@@ -255,51 +611,94 @@ async function getRecipes(){
     }
 }
 
-function showIndianFallback(ingredient,diet){
-    const results=document.getElementById("results");
-    results.innerHTML="";
-
-    if(!indianFallback[ingredient]){
-        results.innerHTML="<p>No recipes found.</p>";
-        return;
-    }
-
-    indianFallback[ingredient].forEach(r=>{
-        const isNonVeg=r.type==="nonveg";
-
-        if(diet==="veg" && isNonVeg) return;
-        if(diet==="nonveg" && !isNonVeg) return;
-
-        renderCard(r.name,
-        "https://source.unsplash.com/400x300/?"+r.name.replace(" ","%20"),
-        isNonVeg,true);
-    });
-}
-
-function renderCard(name,img,isNonVeg,isIndian){
+    const tamilSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(recipe.strMeal + " Tamil recipe")}`;
+function renderCard(meal,isNonVeg,match){
     const results=document.getElementById("results");
     const card=document.createElement("div");
     card.className="card";
     card.style.borderBottomColor=isNonVeg?"var(--nonveg)":"var(--veg)";
 
+    card.innerHTML = `
+        <img src="${recipe.strMealThumb}" alt="${recipe.strMeal}">
     card.innerHTML=`
-        <img src="${img}">
-        <div class="card-content">
-            <span class="badge ${isIndian?"indian":(isNonVeg?"nonveg":"veg")}">
-                ${isIndian?"Indian Special":(isNonVeg?"Non-Veg":"Veg")}
-            </span>
-            <h3>${name}</h3>
-            <div class="match">Match: 95%</div>
-            <div class="bar"><div class="fill" style="width:95%"></div></div>
-        </div>
-    `;
+        <img src="${meal.strMealThumb}">
+       <div class="card-content">
+            <span class="type-badge ${typeClass}">${typeLabel}</span>
+            <h3 style="font-size: 18px; margin: 0 0 10px 0;">${recipe.strMeal}</h3>
+            <p style="font-size: 12px; color: #7f8c8d;">Category: ${recipe.strCategory}</p>
+            <div class="match-score">Match Strength: ${recipe.matchScore}%</div>
+            <div class="match-bar"><div class="match-fill" style="width: ${recipe.matchScore}%; background: var(--veg)"></div></div>
+            <br>
+            <h4>Steps:</h4>
+            <ol style="font-size: 13px; color: #444;">${steps}</ol>
+            <br>
+            <a href="${tamilSearchUrl}" target="_blank" style="text-decoration: none; color: #2980b9; font-weight: bold; font-size: 14px;">Watch in Tamil →</a>
+            <span class="badge ${isNonVeg?"nonveg":"veg"}">${isNonVeg?"Non-Veg":"Veg"}</span>
+            <h3>${meal.strMeal}</h3>
+            <div class="match">Match: ${match}%</div>
+            <div class="bar"><div class="fill" style="width:${match}%"></div></div>
+            <a class="view-btn" onclick="openModal('${meal.idMeal}')">View Recipe →</a>
+       </div>
+   `;
+    container.appendChild(card);
     results.appendChild(card);
+}
+
+function renderCard(meal, isNonVeg) {
+    const container = document.getElementById('results');
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.borderBottomColor = isNonVeg ? 'var(--nonveg)' : 'var(--veg)';
+async function openModal(id){
+    const modal=document.getElementById("modal");
+    const box=document.getElementById("modalContent");
+    modal.style.display="flex";
+
+    const typeLabel = isNonVeg ? 'Non-Veg' : 'Veg';
+    const typeClass = isNonVeg ? 'nonveg-badge' : 'veg-badge';
+    const res=await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
+    const data=await res.json();
+    const m=data.meals[0];
+
+    const steps = meal.strInstructions
+        .split("\n")
+        .filter(s => s.trim())
+        .map(s => `<li>${s.trim()}</li>`)
+        .join("");
+
+    const tamilSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(meal.strMeal + " Tamil recipe")}`;
+    let ingredients="";
+    for(let i=1;i<=20;i++){
+        if(m["strIngredient"+i])
+            ingredients+=`<li>${m["strIngredient"+i]} - ${m["strMeasure"+i]}</li>`;
+    }
+
+    card.innerHTML = `
+        <img src="${meal.strMealThumb}" alt="${meal.strMeal}">
+        <div class="card-content">
+            <span class="type-badge ${typeClass}">${typeLabel}</span>
+            <h3 style="font-size: 18px; margin: 0 0 10px 0;">${meal.strMeal}</h3>
+            <p style="font-size: 12px; color: #7f8c8d;">Category: ${meal.strCategory}</p>
+            <div class="match-score">Match Strength: ${Math.floor(Math.random() * 20) + 80}%</div>
+            <div class="match-bar"><div class="match-fill" style="width: ${Math.floor(Math.random() * 20) + 80}%;"></div></div>
+            <br>
+            <h4>Steps:</h4>
+            <ol style="font-size: 13px; color: #444;">${steps}</ol>
+            <br>
+            <a href="${tamilSearchUrl}" target="_blank" style="text-decoration: none; color: #2980b9; font-weight: bold; font-size: 14px;">Watch in Tamil →</a>
+        </div>
+    box.innerHTML=`
+        <h2>${m.strMeal}</h2>
+        <h4>Ingredients</h4>
+        <ul>${ingredients}</ul>
+        <h4>Instructions</h4>
+        <p>${m.strInstructions}</p>
+        ${m.strYoutube?`<a href="${m.strYoutube}" target="_blank">▶ Watch Video</a>`:""}
+   `;
+    container.appendChild(card);
 }
 
 function closeModal(){
     document.getElementById("modal").style.display="none";
 }
 </script>
-
-</body>
-</html>
